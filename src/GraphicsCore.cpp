@@ -45,3 +45,9 @@ SDL_Renderer * GraphicsCore::getRenderer()
 {
   return renderer_;
 }
+
+void bbq::GraphicsCore::drawLine(int x1, int y1, int x2, int y2, uint32_t color)
+{
+	SDL_SetRenderDrawColor(renderer_, 255, 255, 255, 255);
+	SDL_RenderDrawLine(renderer_, x1, y1, x2, y2);
+}
