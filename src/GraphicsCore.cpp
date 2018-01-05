@@ -48,6 +48,20 @@ SDL_Renderer * GraphicsCore::getRenderer()
 
 void bbq::GraphicsCore::drawLine(int x1, int y1, int x2, int y2, uint32_t color)
 {
-	SDL_SetRenderDrawColor(renderer_, 255, 255, 255, 255);
+  uint8_t red = color >> 24;
+  uint8_t green = (color & 0x00FF0000) >> 16;
+  uint8_t blue = (color & 0x0000FF00) >> 8;
+  uint8_t alpha = color & 0x000000FF;
+	SDL_SetRenderDrawColor(renderer_, red, green, blue, alpha);
 	SDL_RenderDrawLine(renderer_, x1, y1, x2, y2);
+}
+
+void bbq::GraphicsCore::drawPoint(int x, int y, uint32_t color)
+{
+  uint8_t red = color >> 24;
+  uint8_t green = (color & 0x00FF0000) >> 16;
+  uint8_t blue = (color & 0x0000FF00) >> 8;
+  uint8_t alpha = color & 0x000000FF;
+  SDL_SetRenderDrawColor(renderer_, red, green, blue, alpha);
+  SDL_RenderDrawPoint(renderer_, x, y);
 }

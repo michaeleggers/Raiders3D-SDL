@@ -129,7 +129,7 @@ int Game_Init(void *parms)
 		// the viewpoint 0,0,-d to the yon clipping plane 0,0,far_z
 		stars[index].x = -WINDOW_WIDTH / 2 + rand() % WINDOW_WIDTH;
 		stars[index].y = -WINDOW_HEIGHT / 2 + rand() % WINDOW_HEIGHT;
-		stars[index].z = NEAR_Z + rand() % (FAR_Z - NEAR_Z);
+		stars[index].z =  NEAR_Z + rand() % (FAR_Z - NEAR_Z);
 
 		// set color of stars
 		stars[index].color = rgb_white;
@@ -264,7 +264,8 @@ void Draw_Ties(void)
 		// based on z-distance shade tie fighter
 		// normalize the distance from 0 to max_z then
 		// scale it to 255, so the closer the brighter
-		uint32_t rgb_tie_color = (0, (255 - 255 * (ties[index].z / (4 * FAR_Z))), 0);
+		uint32_t rgb_tie_color = (255 - 255 * (ties[index].z / (4 * FAR_Z)));
+    rgb_tie_color <<= 16;
 
 		// each tie fighter is made of a number of edges
 		for (int edge = 0; edge < NUM_TIE_EDGES; edge++)
@@ -294,7 +295,7 @@ void Draw_Ties(void)
 			int p2_screen_y = WINDOW_HEIGHT / 2 - p2_per.y;
 
 			// step 3: draw the edge
-			gCore.drawLine(p1_screen_x, p1_screen_y, p2_screen_x, p2_screen_y, 0);
+			gCore.drawLine(p1_screen_x, p1_screen_y, p2_screen_x, p2_screen_y, rgb_tie_color);
 
 			// update bounding box with next edge
 			int min_x = min(p1_screen_x, p2_screen_x);
@@ -391,8 +392,12 @@ void Draw_Starfield(void)
 		else
 		{
 			// else render to buffer
-			SDL_SetRenderDrawColor(gCore.getRenderer(), 255, 255, 255, 255);
-			SDL_RenderDrawPoint(gCore.getRenderer(), x_screen, y_screen);
+      uint32_t luminosity = rand() * 0x01010100;
+      uint32_t rgb_star_color = 0xFFFFFF00; /*(255 - 255 * (stars[index].z / (FAR_Z)));
+      rgb_star_color <<= 8;
+      rgb_star_color |= rgb_star_color << 8;
+      rgb_star_color |= rgb_star_color << 8;*/
+      gCore.drawPoint(x_screen, y_screen, rgb_star_color);
 			//((USHORT *)back_buffer)[x_screen + y_screen * (back_lpitch >> 1)]
 			//	= stars[index].color;
 		} // end else
