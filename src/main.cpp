@@ -27,7 +27,7 @@ const float DELAY_TIME = 1000.0f / FPS;
 
 // player constants
 #define CROSS_VEL       8  // speed that the cross hair moves
-#define PLAYER_Z_VEL    8  // virtual z velocity that player is moving
+//#define PLAYER_Z_VEL    8  // virtual z velocity that player is moving
 // to simulate motion without moving
 
 // tie fighter model constants
@@ -170,7 +170,7 @@ int Game_Init(void *parms)
 	{ rgb_white,80,0,0 },     // p8
 	{ rgb_white,80,-80,0 } };   // p9
 
-								// copy the model into the real global arrays
+  // copy the model into the real global arrays
 	for (index = 0; index < NUM_TIE_VERTS; index++)
 		tie_vlist[index] = temp_tie_vlist[index];
 
@@ -340,8 +340,8 @@ void Init_Tie(int index)
 	// of the universe and sends it our way!
 
 	// position each tie in the viewing volume
-	ties[index].x = -WINDOW_WIDTH + rand() % (2 * WINDOW_WIDTH);
-	ties[index].y = -WINDOW_HEIGHT + rand() % (2 * WINDOW_HEIGHT);
+  ties[index].x = 0;// -WINDOW_WIDTH + rand() % (2 * WINDOW_WIDTH);
+  ties[index].y = 0;// -WINDOW_HEIGHT + rand() % (2 * WINDOW_HEIGHT);
 	ties[index].z = 4 * FAR_Z;
 
 	// initialize velocity of tie fighter
@@ -415,7 +415,10 @@ void Draw_Ties(void)
 		// normalize the distance from 0 to max_z then
 		// scale it to 255, so the closer the brighter
 		uint32_t rgb_tie_color = (255 - 255 * (ties[index].z / (4 * FAR_Z)));
+    uint32_t rgb_tie_color_blue = (255 - 255 * (ties[index].z / (4 * FAR_Z)));
+
     rgb_tie_color <<= 16;
+    rgb_tie_color |= (rgb_tie_color_blue << 8);
 
 		// each tie fighter is made of a number of edges
 		for (int edge = 0; edge < NUM_TIE_EDGES; edge++)
@@ -655,7 +658,7 @@ int main(int argc, char** argv)
 		Process_Explosions();
 
 		gCore.clear();
-		SDL_SetRenderDrawColor(gCore.getRenderer(), 255, 255, 255, SDL_ALPHA_OPAQUE);
+		//SDL_SetRenderDrawColor(gCore.getRenderer(), 255, 255, 255, SDL_ALPHA_OPAQUE);
 		Draw_Starfield();
 		Draw_Ties();
 		Draw_Explosions();
