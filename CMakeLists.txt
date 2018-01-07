@@ -48,6 +48,7 @@ add_executable(Barbecue
 	inc/Player.h
 	inc/BitmapFont.h
 	inc/TileMap.h
+	inc/common.h
 	)
 
 source_group("resources" FILES ${RESOURCES})
