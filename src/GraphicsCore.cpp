@@ -1,4 +1,5 @@
 #include "../inc/GraphicsCore.h"
+#include "../inc/common.h"
 
 using namespace bbq;
 
@@ -21,15 +22,15 @@ int GraphicsCore::init()
   }
   
   window_ = SDL_CreateWindow(
-    "Barbecue",
+    "Raiders3DSDL",
     SDL_WINDOWPOS_UNDEFINED,
     SDL_WINDOWPOS_UNDEFINED,
-    1024, 768,
+    WINDOW_WIDTH, WINDOW_HEIGHT,
     0
     );
 
   renderer_ = SDL_CreateRenderer(window_, -1, SDL_RENDERER_ACCELERATED);
-  SDL_RenderSetLogicalSize(renderer_, 1024, 768);
+  SDL_RenderSetLogicalSize(renderer_, WINDOW_WIDTH, WINDOW_HEIGHT);
 
   return errorCode;
 }
@@ -48,10 +49,10 @@ SDL_Renderer * GraphicsCore::getRenderer()
 
 void bbq::GraphicsCore::drawLine(int x1, int y1, int x2, int y2, uint32_t color)
 {
-  uint8_t red = color >> 24;
-  uint8_t green = (color & 0x00FF0000) >> 16;
-  uint8_t blue = (color & 0x0000FF00) >> 8;
-  uint8_t alpha = color & 0x000000FF;
+	uint8_t red = color >> 24;
+	uint8_t green = (color & 0x00FF0000) >> 16;
+	uint8_t blue = (color & 0x0000FF00) >> 8;
+	uint8_t alpha = color & 0x000000FF;
 	SDL_SetRenderDrawColor(renderer_, red, green, blue, alpha);
 	SDL_RenderDrawLine(renderer_, x1, y1, x2, y2);
 }

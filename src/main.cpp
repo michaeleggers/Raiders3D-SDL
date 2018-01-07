@@ -2,7 +2,9 @@
 #include <iostream>
 #include <string>
 #include "SDL.h"
+
 /* Graphics */
+#include "../inc/common.h"
 #include "../inc/GraphicsCore.h"
 /* Input */
 #include "../inc/InputCore.h"
@@ -22,6 +24,7 @@ const float DELAY_TIME = 1000.0f / FPS;
 #define VIEW_DISTANCE   320  // viewing distance from viewpoint 
 // this gives a field of view of 90 degrees
 // when projected on a window of 640 wide
+
 // player constants
 #define CROSS_VEL       8  // speed that the cross hair moves
 #define PLAYER_Z_VEL    8  // virtual z velocity that player is moving
@@ -38,8 +41,7 @@ const float DELAY_TIME = 1000.0f / FPS;
 #define GAME_RUNNING      1
 #define GAME_OVER         0
 
-#define WINDOW_WIDTH      1024   // size of window
-#define WINDOW_HEIGHT     768
+
 
 // TYPES ///////////////////////////////////////////////////
 
@@ -109,9 +111,26 @@ LINE3D  tie_shape[NUM_TIE_EDGES]; // edge list for the tie fighter model
 TIE     ties[NUM_TIES];           // tie fighters
 POINT3D stars[NUM_STARS]; // the starfield
 
-int player_z_vel = 4; // virtual speed of viewpoint/ship
+						  // player vars
+Sint32 cross_x = 0; // cross hairs
+Sint32 cross_y = 0;
 
-bbq::GraphicsCore gCore;
+int cross_x_screen = WINDOW_WIDTH / 2,   // used for cross hair
+cross_y_screen = WINDOW_HEIGHT / 2,
+target_x_screen = WINDOW_WIDTH / 2,   // used for targeter
+target_y_screen = WINDOW_HEIGHT / 2;
+
+int player_z_vel = 4; // virtual speed of viewpoint/ship
+int cannon_state = 0; // state of laser cannon
+int cannon_count = 0; // laster cannon counter
+
+EXPL explosions[NUM_EXPLOSIONS]; // the explosiions
+
+int misses = 0; // tracks number of missed ships
+int hits = 0; // tracks number of hits
+int score = 0; // take a guess :)
+
+bbq::GraphicsCore gCore; // provides framebuffer and line/point drawing functions
 
 int Game_Init(void *parms)
 {
@@ -127,8 +146,8 @@ int Game_Init(void *parms)
 	{
 		// randomly position stars in an elongated cylinder stretching from
 		// the viewpoint 0,0,-d to the yon clipping plane 0,0,far_z
-		stars[index].x = -WINDOW_WIDTH / 2 + rand() % WINDOW_WIDTH;
-		stars[index].y = -WINDOW_HEIGHT / 2 + rand() % WINDOW_HEIGHT;
+		stars[index].x = - WINDOW_WIDTH + rand() % (WINDOW_WIDTH * 2);
+		stars[index].y = - WINDOW_HEIGHT + rand() % (WINDOW_HEIGHT * 2);
 		stars[index].z =  NEAR_Z + rand() % (FAR_Z - NEAR_Z);
 
 		// set color of stars
@@ -140,16 +159,16 @@ int Game_Init(void *parms)
 	  // the vertex list for the tie fighter
 	POINT3D temp_tie_vlist[NUM_TIE_VERTS] =
 		// color, x,y,z
-	{ { rgb_white,-40,40,0 },    // p0
-	{ rgb_white,-40,0,0 },    // p1
-	{ rgb_white,-40,-40,0 },   // p2
-	{ rgb_white,-10,0,0 },    // p3
-	{ rgb_white,0,20,0 },     // p4
-	{ rgb_white,10,0,0 },     // p5
-	{ rgb_white,0,-20,0 },    // p6
-	{ rgb_white,40,40,0 },     // p7
-	{ rgb_white,40,0,0 },     // p8
-	{ rgb_white,40,-40,0 } };   // p9
+	{ { rgb_white,-80,80,0 },    // p0
+	{ rgb_white,-80,0,0 },    // p1
+	{ rgb_white,-80,-80,0 },   // p2
+	{ rgb_white,-20,0,0 },    // p3
+	{ rgb_white,0,40,0 },     // p4
+	{ rgb_white,20,0,0 },     // p5
+	{ rgb_white,0,-40,0 },    // p6
+	{ rgb_white,80,80,0 },     // p7
+	{ rgb_white,80,0,0 },     // p8
+	{ rgb_white,80,-80,0 } };   // p9
 
 								// copy the model into the real global arrays
 	for (index = 0; index < NUM_TIE_VERTS; index++)
@@ -183,6 +202,137 @@ int Game_Init(void *parms)
 	return(1);
 
 } // end Game_Init
+
+  //////////////////////////////////////////////////////////
+
+void Start_Explosion(int tie)
+{
+	// this starts an explosion based on the sent tie fighter
+
+	// first hunt and see if an explosion is free
+	for (int index = 0; index < NUM_EXPLOSIONS; index++)
+	{
+		if (explosions[index].state == 0)
+		{
+			// start this explosion up using the properties
+			// if the tie figther index sent
+
+			explosions[index].state = 1; // enable state of explosion
+			explosions[index].counter = 0; // reset counter for explosion 
+
+										   // set color of explosion
+			explosions[index].color = 0x00FF0000; // green
+
+			// make copy of of edge list, so we can blow it up
+			for (int edge = 0; edge < NUM_TIE_EDGES; edge++)
+			{
+				// start point of edge
+				explosions[index].p1[edge].x = ties[tie].x + tie_vlist[tie_shape[edge].v1].x;
+				explosions[index].p1[edge].y = ties[tie].y + tie_vlist[tie_shape[edge].v1].y;
+				explosions[index].p1[edge].z = ties[tie].z + tie_vlist[tie_shape[edge].v1].z;
+
+				// end point of edge
+				explosions[index].p2[edge].x = ties[tie].x + tie_vlist[tie_shape[edge].v2].x;
+				explosions[index].p2[edge].y = ties[tie].y + tie_vlist[tie_shape[edge].v2].y;
+				explosions[index].p2[edge].z = ties[tie].z + tie_vlist[tie_shape[edge].v2].z;
+
+				// compute trajectory vector for edges
+				explosions[index].vel[edge].x = ties[tie].xv - 8 + rand() % 16;
+				explosions[index].vel[edge].y = ties[tie].yv - 8 + rand() % 16;
+				explosions[index].vel[edge].z = ties[tie].zv; //+ rand() % 4;
+
+			} // end for edge
+
+			  // done, so return
+			return;
+		} // end if found
+
+	} // end for index
+
+} // end Start_Explosion
+
+  ///////////////////////////////////////////////////////////
+
+void Process_Explosions(void)
+{
+	// this processes all the explosions
+
+	// loop thro all the explosions and render them
+	for (int index = 0; index < NUM_EXPLOSIONS; index++)
+	{
+		// test if this explosion is active?
+		if (explosions[index].state == 0)
+			continue;
+
+		for (int edge = 0; edge < NUM_TIE_EDGES; edge++)
+		{
+			// must be exploding, update edges (shrapel)
+			explosions[index].p1[edge].x += explosions[index].vel[edge].x;
+			explosions[index].p1[edge].y += explosions[index].vel[edge].y;
+			explosions[index].p1[edge].z += explosions[index].vel[edge].z;
+
+			explosions[index].p2[edge].x += explosions[index].vel[edge].x;
+			explosions[index].p2[edge].y += explosions[index].vel[edge].y;
+			explosions[index].p2[edge].z += explosions[index].vel[edge].z;
+		} // end for edge
+
+		  // test for terminatation of explosion?
+		if (++explosions[index].counter > 100)
+			explosions[index].state = explosions[index].counter = 0;
+
+	} // end for index
+
+} // end Process_Explosions
+
+  ///////////////////////////////////////////////////////////
+
+void Draw_Explosions(void)
+{
+	// this draws all the explosions
+
+	// loop thro all the explosions and render them
+	for (int index = 0; index < NUM_EXPLOSIONS; index++)
+	{
+		// test if this explosion is active?
+		if (explosions[index].state == 0)
+			continue;
+
+		// render this explosion
+		// each explosion is made of a number of edges
+		for (int edge = 0; edge < NUM_TIE_EDGES; edge++)
+		{
+			POINT3D p1_per, p2_per; // used to hold perspective endpoints
+
+									// test if edge if beyond near clipping plane
+			if (explosions[index].p1[edge].z < NEAR_Z &&
+				explosions[index].p2[edge].z < NEAR_Z)
+				continue;
+
+			// step 1: perspective transform each end point
+			p1_per.x = VIEW_DISTANCE * explosions[index].p1[edge].x / explosions[index].p1[edge].z;
+			p1_per.y = VIEW_DISTANCE * explosions[index].p1[edge].y / explosions[index].p1[edge].z;
+			p2_per.x = VIEW_DISTANCE * explosions[index].p2[edge].x / explosions[index].p2[edge].z;
+			p2_per.y = VIEW_DISTANCE * explosions[index].p2[edge].y / explosions[index].p2[edge].z;
+
+			// step 2: compute screen coords
+			int p1_screen_x = WINDOW_WIDTH / 2 + p1_per.x;
+			int p1_screen_y = WINDOW_HEIGHT / 2 - p1_per.y;
+			int p2_screen_x = WINDOW_WIDTH / 2 + p2_per.x;
+			int p2_screen_y = WINDOW_HEIGHT / 2 - p2_per.y;
+
+			// step 3: draw the edge
+			gCore.drawLine(p1_screen_x, p1_screen_y, p2_screen_x, p2_screen_y,
+				explosions[index].color);
+			//Draw_Clip_Line16(p1_screen_x, p1_screen_y, p2_screen_x, p2_screen_y,
+			//	explosions[index].color, back_buffer, back_lpitch);
+
+		} // end for edge
+
+	} // end for index
+
+} // end Draw_Explosions
+
+  //////////////////////////////////////////////////////////
 
 void Init_Tie(int index)
 {
@@ -313,30 +463,31 @@ void Draw_Ties(void)
 		} // end for edge
 
 		  // test if this guy has been hit by lasers???
-		//if (cannon_state == 1)
-		//{
-		//	// simple test of screen coords of bounding box contain laser target
-		//	if (target_x_screen > bmin_x && target_x_screen < bmax_x &&
-		//		target_y_screen > bmin_y && target_y_screen < bmax_y)
-		//	{
-		//		// this tie is dead meat!
-		//		Start_Explosion(index);
+		if (cannon_state == 1)
+		{
+			// simple test of screen coords of bounding box contain laser target
+			if (target_x_screen > bmin_x && target_x_screen < bmax_x &&
+				target_y_screen > bmin_y && target_y_screen < bmax_y)
+			{
+				std::cout << "HIT!" << std::endl;
+				// this tie is dead meat!
+				Start_Explosion(index);
 
-		//		// start sound
-		//		DSound_Play(explosion_id);
+				// start sound
+				//DSound_Play(explosion_id);
 
-		//		// increase score
-		//		score += ties[index].z;
+				// increase score
+				score += ties[index].z;
 
-		//		// add one more hit
-		//		hits++;
+				// add one more hit
+				hits++;
 
-		//		// finally reset this tie figher
-		//		Init_Tie(index);
+				// finally reset this tie figher
+				Init_Tie(index);
 
-		//	} // end if
+			} // end if
 
-		//} // end if
+		} // end if
 
 	} // end for index
 
@@ -450,9 +601,18 @@ int main(int argc, char** argv)
 
 		while (SDL_PollEvent(&event) != 0)
 		{
-
+			cross_x = event.motion.x;
+			cross_y = event.motion.y;
+			cannon_state = 1;
 			if (event.type == SDL_QUIT) {
 				running = false;
+			}
+			if (event.type == SDL_MOUSEBUTTONDOWN)
+			{			
+				// save last position of targeter
+				target_x_screen = cross_x;
+				target_y_screen = cross_y;
+
 			}
 		}
 
@@ -484,25 +644,29 @@ int main(int argc, char** argv)
 
 			if (iCore.keyDown(SDL_SCANCODE_ESCAPE))
 			{
-
+				running = false;
 			}
 
 			last_update_time_input = SDL_GetTicks();
 		}
 
-		// controlls animation speed
-		if (SDL_GetTicks() - last_update_time > 0)
-		{
-			Move_Starfield();
-			Process_Ties();
-			last_update_time = SDL_GetTicks();
-		}
+		Move_Starfield();
+		Process_Ties();
+		Process_Explosions();
 
 		gCore.clear();
 		SDL_SetRenderDrawColor(gCore.getRenderer(), 255, 255, 255, SDL_ALPHA_OPAQUE);
-		Draw_Ties();
 		Draw_Starfield();
-		SDL_SetRenderDrawColor(gCore.getRenderer(), 255, 255, 255, 100);
+		Draw_Ties();
+		Draw_Explosions();
+
+		target_x_screen = -10000;
+		target_y_screen = -10000;
+		// first compute screen coords of crosshair
+		// note inversion of y-axis
+		cross_x_screen = WINDOW_WIDTH / 2 + cross_x;
+		cross_y_screen = WINDOW_HEIGHT / 2 - cross_y;
+
 		//SDL_RenderDrawLine(gCore.getRenderer(), 0, 0, 200, 200);
 		SDL_RenderPresent(gCore.getRenderer());
 		//SDL_Delay(100); // artificial render time 
