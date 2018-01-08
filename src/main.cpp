@@ -21,7 +21,7 @@ const float DELAY_TIME = 1000.0f / FPS;
 // 3D engine constants
 #define NEAR_Z          10   // the near clipping plane
 #define FAR_Z           2000 // the far clipping plane    
-#define VIEW_DISTANCE   320  // viewing distance from viewpoint 
+#define VIEW_DISTANCE   540  // viewing distance from viewpoint 
 // this gives a field of view of 90 degrees
 // when projected on a window of 640 wide
 
@@ -340,8 +340,8 @@ void Init_Tie(int index)
 	// of the universe and sends it our way!
 
 	// position each tie in the viewing volume
-  ties[index].x = 0;// -WINDOW_WIDTH + rand() % (2 * WINDOW_WIDTH);
-  ties[index].y = 0;// -WINDOW_HEIGHT + rand() % (2 * WINDOW_HEIGHT);
+  ties[index].x = 0 -WINDOW_WIDTH + rand() % (2 * WINDOW_WIDTH);
+  ties[index].y = 0 -WINDOW_HEIGHT + rand() % (2 * WINDOW_HEIGHT);
 	ties[index].z = 4 * FAR_Z;
 
 	// initialize velocity of tie fighter
@@ -604,9 +604,9 @@ int main(int argc, char** argv)
 
 		while (SDL_PollEvent(&event) != 0)
 		{
-			cross_x = event.motion.x;
-			cross_y = event.motion.y;
-			cannon_state = 1;
+			//cross_x = event.motion.x;
+			//cross_y = event.motion.y;
+
 			if (event.type == SDL_QUIT) {
 				running = false;
 			}
@@ -626,23 +626,49 @@ int main(int argc, char** argv)
 
 			if (iCore.keyDown(SDL_SCANCODE_DOWN))
 			{
+        // move cross hair up
+        cross_y -= CROSS_VEL;
 
+        // test for wraparound
+        if (cross_y < -WINDOW_HEIGHT / 2)
+          cross_y = WINDOW_HEIGHT / 2;
 			}
 			if (iCore.keyDown(SDL_SCANCODE_UP))
 			{
+        // move cross hair up
+        cross_y += CROSS_VEL;
 
+        // test for wraparound
+        if (cross_y > WINDOW_HEIGHT / 2)
+          cross_y = -WINDOW_HEIGHT / 2;
 			}
-			if (iCore.keyUp(SDL_SCANCODE_RIGHT))
+			if (iCore.keyDown(SDL_SCANCODE_RIGHT))
 			{
+        // move cross hair to right
+        cross_x += CROSS_VEL;
 
+        // test for wraparound
+        if (cross_x > WINDOW_WIDTH / 2)
+          cross_x = -WINDOW_WIDTH / 2;
 			}
-			if (iCore.keyUp(SDL_SCANCODE_LEFT))
+			if (iCore.keyDown(SDL_SCANCODE_LEFT))
 			{
+        // move cross hair to left
+        cross_x -= CROSS_VEL;
 
+        // test for wraparound
+        if (cross_x < -WINDOW_WIDTH / 2)
+          cross_x = WINDOW_WIDTH / 2;
 			}
 			if (iCore.keyDown(SDL_SCANCODE_SPACE))
 			{
+        // fire the cannon
+        cannon_state = 1;
+        cannon_count = 0;
 
+        // save last position of targeter
+        target_x_screen = cross_x_screen;
+        target_y_screen = cross_y_screen;
 			}
 
 			if (iCore.keyDown(SDL_SCANCODE_ESCAPE))
@@ -653,22 +679,49 @@ int main(int argc, char** argv)
 			last_update_time_input = SDL_GetTicks();
 		}
 
+    // process cannon, simple FSM ready->firing->cool
+
+    // firing phase
+    if (cannon_state == 1)
+      if (++cannon_count > 15)
+        cannon_state = 2;
+
+    // cool down phase
+    if (cannon_state == 2)
+      if (++cannon_count > 20)
+        cannon_state = 0;
+
 		Move_Starfield();
 		Process_Ties();
 		Process_Explosions();
 
 		gCore.clear();
-		//SDL_SetRenderDrawColor(gCore.getRenderer(), 255, 255, 255, SDL_ALPHA_OPAQUE);
 		Draw_Starfield();
 		Draw_Ties();
 		Draw_Explosions();
 
-		target_x_screen = -10000;
-		target_y_screen = -10000;
+
 		// first compute screen coords of crosshair
 		// note inversion of y-axis
 		cross_x_screen = WINDOW_WIDTH / 2 + cross_x;
 		cross_y_screen = WINDOW_HEIGHT / 2 - cross_y;
+
+    // draw the crosshair in screen coords
+    gCore.drawLine(cross_x_screen - 16, cross_y_screen,
+      cross_x_screen + 16, cross_y_screen,
+      0xFF000000);
+
+    gCore.drawLine(cross_x_screen, cross_y_screen - 16,
+      cross_x_screen, cross_y_screen + 16,
+      0xFF000000);
+
+    gCore.drawLine(cross_x_screen - 16, cross_y_screen - 4,
+      cross_x_screen - 16, cross_y_screen + 4,
+      0xFF000000);
+
+    gCore.drawLine(cross_x_screen + 16, cross_y_screen - 4,
+      cross_x_screen + 16, cross_y_screen + 4,
+      0xFF000000);
 
 		//SDL_RenderDrawLine(gCore.getRenderer(), 0, 0, 200, 200);
 		SDL_RenderPresent(gCore.getRenderer());
