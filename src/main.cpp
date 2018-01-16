@@ -21,7 +21,7 @@ const float DELAY_TIME = 1000.0f / FPS;
 // 3D engine constants
 #define NEAR_Z          10   // the near clipping plane
 #define FAR_Z           2000 // the far clipping plane    
-#define VIEW_DISTANCE   540  // viewing distance from viewpoint 
+#define VIEW_DISTANCE   WINDOW_WIDTH / 2  // viewing distance from viewpoint 
 // this gives a field of view of 90 degrees
 // when projected on a window of 640 wide
 
@@ -418,7 +418,7 @@ void Draw_Ties(void)
     uint32_t rgb_tie_color_blue = (255 - 255 * (ties[index].z / (4 * FAR_Z)));
 
     rgb_tie_color <<= 16;
-    rgb_tie_color |= (rgb_tie_color_blue << 8);
+    //rgb_tie_color |= (rgb_tie_color_blue << 8);
 
 		// each tie fighter is made of a number of edges
 		for (int edge = 0; edge < NUM_TIE_EDGES; edge++)
@@ -563,8 +563,6 @@ void Draw_Starfield(void)
 int main(int argc, char** argv)
 {
 
-
-
 	// Init SDL2 //////////////////////////////////////
 
   // for now done in graphics core
@@ -604,23 +602,19 @@ int main(int argc, char** argv)
 
 		while (SDL_PollEvent(&event) != 0)
 		{
-			//cross_x = event.motion.x;
-			//cross_y = event.motion.y;
-
 			if (event.type == SDL_QUIT) {
 				running = false;
 			}
 			if (event.type == SDL_MOUSEBUTTONDOWN)
 			{			
 				// save last position of targeter
-				target_x_screen = cross_x;
-				target_y_screen = cross_y;
-
+				//target_x_screen = cross_x;
+				//target_y_screen = cross_y;
 			}
 		}
 
 		// input update
-		if (SDL_GetTicks() - last_update_time_input > 10) // not quite what the threshold should be
+		if (SDL_GetTicks() - last_update_time_input > 0) // not quite what the threshold should be
 		{
 			iCore.update();
 
@@ -660,7 +654,22 @@ int main(int argc, char** argv)
         if (cross_x < -WINDOW_WIDTH / 2)
           cross_x = WINDOW_WIDTH / 2;
 			}
-			if (iCore.keyDown(SDL_SCANCODE_SPACE))
+
+      // speed of ship controls
+      if (iCore.keyDown(SDL_SCANCODE_A))
+      {
+        player_z_vel++;
+      }
+      else
+      {
+        if (iCore.keyDown(SDL_SCANCODE_S))
+        {
+          player_z_vel--;
+        }
+      }
+
+      // test if player is firing laser cannon
+			if (iCore.keyDown(SDL_SCANCODE_SPACE) && cannon_state == 0)
 			{
         // fire the cannon
         cannon_state = 1;
@@ -722,6 +731,26 @@ int main(int argc, char** argv)
     gCore.drawLine(cross_x_screen + 16, cross_y_screen - 4,
       cross_x_screen + 16, cross_y_screen + 4,
       0xFF000000);
+
+    // draw the laser beams
+    if (cannon_state == 1)
+    {
+      if ((rand() % 2 == 1))
+      {
+        // right beam
+        gCore.drawLine(WINDOW_WIDTH - 1, WINDOW_HEIGHT - 1,
+          -4 + rand() % 8 + target_x_screen, -4 + rand() % 8 + target_y_screen,
+          rand(), 0x00, 0x00);
+      } // end if    
+      else
+      {
+        // left beam
+        gCore.drawLine(0, WINDOW_HEIGHT - 1,
+          -4 + rand() % 8 + target_x_screen, -4 + rand() % 8 + target_y_screen,
+          rand(), 0x00, 0x00);
+      } // end if
+
+    } // end if
 
 		//SDL_RenderDrawLine(gCore.getRenderer(), 0, 0, 200, 200);
 		SDL_RenderPresent(gCore.getRenderer());

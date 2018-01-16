@@ -22,11 +22,11 @@ int GraphicsCore::init()
   }
   
   window_ = SDL_CreateWindow(
-    "Raiders3DSDL",
+    "Raiders3D-SDL",
     SDL_WINDOWPOS_UNDEFINED,
     SDL_WINDOWPOS_UNDEFINED,
     WINDOW_WIDTH, WINDOW_HEIGHT,
-    0
+    1
     );
 
   renderer_ = SDL_CreateRenderer(window_, -1, SDL_RENDERER_ACCELERATED);
@@ -47,14 +47,25 @@ SDL_Renderer * GraphicsCore::getRenderer()
   return renderer_;
 }
 
+void bbq::GraphicsCore::drawLine(int x1, int y1, int x2, int y2, uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha)
+{
+  SDL_SetRenderDrawColor(renderer_, red, green, blue, alpha);
+  SDL_RenderDrawLine(renderer_, x1, y1, x2, y2);
+}
+
+void bbq::GraphicsCore::drawPoint(int x, int y, uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha)
+{
+  SDL_SetRenderDrawColor(renderer_, red, green, blue, alpha);
+  SDL_RenderDrawPoint(renderer_, x, y);
+}
+
 void bbq::GraphicsCore::drawLine(int x1, int y1, int x2, int y2, uint32_t color)
 {
 	uint8_t red = color >> 24;
 	uint8_t green = (color & 0x00FF0000) >> 16;
 	uint8_t blue = (color & 0x0000FF00) >> 8;
 	uint8_t alpha = color & 0x000000FF;
-	SDL_SetRenderDrawColor(renderer_, red, green, blue, alpha);
-	SDL_RenderDrawLine(renderer_, x1, y1, x2, y2);
+  drawLine(x1, y1, x2, y2, red, green, blue, alpha);
 }
 
 void bbq::GraphicsCore::drawPoint(int x, int y, uint32_t color)
@@ -63,6 +74,5 @@ void bbq::GraphicsCore::drawPoint(int x, int y, uint32_t color)
   uint8_t green = (color & 0x00FF0000) >> 16;
   uint8_t blue = (color & 0x0000FF00) >> 8;
   uint8_t alpha = color & 0x000000FF;
-  SDL_SetRenderDrawColor(renderer_, red, green, blue, alpha);
-  SDL_RenderDrawPoint(renderer_, x, y);
+  drawPoint(x, y, red, green, blue, alpha);
 }
