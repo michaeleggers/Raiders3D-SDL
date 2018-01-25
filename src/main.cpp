@@ -21,12 +21,12 @@ const float DELAY_TIME = 1000.0f / FPS;
 // 3D engine constants
 #define NEAR_Z          10   // the near clipping plane
 #define FAR_Z           2000 // the far clipping plane    
-#define VIEW_DISTANCE   WINDOW_WIDTH / 2  // viewing distance from viewpoint 
+#define VIEW_DISTANCE   320  // viewing distance from viewpoint 
 // this gives a field of view of 90 degrees
 // when projected on a window of 640 wide
 
 // player constants
-#define CROSS_VEL       8  // speed that the cross hair moves
+#define CROSS_VEL       2  // speed that the cross hair moves
 //#define PLAYER_Z_VEL    8  // virtual z velocity that player is moving
 // to simulate motion without moving
 
@@ -112,10 +112,10 @@ TIE     ties[NUM_TIES];           // tie fighters
 POINT3D stars[NUM_STARS]; // the starfield
 
 						  // player vars
-Sint32 cross_x = 0; // cross hairs
-Sint32 cross_y = 0;
+float cross_x = 0; // cross hairs
+float cross_y = 0;
 
-int cross_x_screen = WINDOW_WIDTH / 2,   // used for cross hair
+float cross_x_screen = WINDOW_WIDTH / 2,   // used for cross hair
 cross_y_screen = WINDOW_HEIGHT / 2,
 target_x_screen = WINDOW_WIDTH / 2,   // used for targeter
 target_y_screen = WINDOW_HEIGHT / 2;
@@ -253,7 +253,7 @@ void Start_Explosion(int tie)
 
   ///////////////////////////////////////////////////////////
 
-void Process_Explosions(void)
+void Process_Explosions(float dt)
 {
 	// this processes all the explosions
 
@@ -267,17 +267,16 @@ void Process_Explosions(void)
 		for (int edge = 0; edge < NUM_TIE_EDGES; edge++)
 		{
 			// must be exploding, update edges (shrapel)
-			explosions[index].p1[edge].x += explosions[index].vel[edge].x;
-			explosions[index].p1[edge].y += explosions[index].vel[edge].y;
-			explosions[index].p1[edge].z += explosions[index].vel[edge].z;
-
-			explosions[index].p2[edge].x += explosions[index].vel[edge].x;
-			explosions[index].p2[edge].y += explosions[index].vel[edge].y;
-			explosions[index].p2[edge].z += explosions[index].vel[edge].z;
+			explosions[index].p1[edge].x += explosions[index].vel[edge].x * dt / 5.0f;
+			explosions[index].p1[edge].y += explosions[index].vel[edge].y * dt / 5.0f;
+			explosions[index].p1[edge].z += explosions[index].vel[edge].z * dt / 5.0f;
+			explosions[index].p2[edge].x += explosions[index].vel[edge].x * dt / 5.0f;
+			explosions[index].p2[edge].y += explosions[index].vel[edge].y * dt / 5.0f;
+			explosions[index].p2[edge].z += explosions[index].vel[edge].z * dt / 5.0f;
 		} // end for edge
 
 		  // test for terminatation of explosion?
-		if (++explosions[index].counter > 100)
+		if (++explosions[index].counter > 1000)
 			explosions[index].state = explosions[index].counter = 0;
 
 	} // end for index
@@ -353,7 +352,7 @@ void Init_Tie(int index)
 	ties[index].state = 1;
 } // end Init_Tie
 
-void Process_Ties(void)
+void Process_Ties(float dt)
 {
 	// process the tie fighters and do AI (what there is of it!)
 	int index; // looping var
@@ -366,9 +365,9 @@ void Process_Ties(void)
 			continue;
 
 		// move the next star
-		ties[index].z += ties[index].zv;
-		ties[index].x += ties[index].xv;
-		ties[index].y += ties[index].yv;
+		ties[index].z += ties[index].zv * dt / 10;
+		ties[index].x += ties[index].xv * dt / 10;
+		ties[index].y += ties[index].yv * dt / 10;
 
 		// test for past near clipping plane
 		if (ties[index].z <= NEAR_Z)
@@ -496,7 +495,7 @@ void Draw_Ties(void)
 
 } // end Draw_Ties
 
-void Move_Starfield(void)
+void Move_Starfield(float dt)
 {
 	// move the stars
 
@@ -507,7 +506,7 @@ void Move_Starfield(void)
 	for (index = 0; index < NUM_STARS; index++)
 	{
 		// move the next star
-		stars[index].z -= player_z_vel;
+		stars[index].z -= (float)player_z_vel * dt / 10.0f;
 
 		// test for past near clipping plane
 		if (stars[index].z <= NEAR_Z)
@@ -594,7 +593,7 @@ int main(int argc, char** argv)
 	float last_update_time_input = SDL_GetTicks();
 	int before_render_time = SDL_GetTicks();
 	int after_render_time = 0.0f;
-	int time_needed = 0;
+	float time_needed = 0;
 
 	while (running) {
 
@@ -621,7 +620,7 @@ int main(int argc, char** argv)
 			if (iCore.keyDown(SDL_SCANCODE_DOWN))
 			{
         // move cross hair up
-        cross_y -= CROSS_VEL;
+        cross_y -= CROSS_VEL * time_needed / 5.0f;
 
         // test for wraparound
         if (cross_y < -WINDOW_HEIGHT / 2)
@@ -629,8 +628,8 @@ int main(int argc, char** argv)
 			}
 			if (iCore.keyDown(SDL_SCANCODE_UP))
 			{
-        // move cross hair up
-        cross_y += CROSS_VEL;
+        // move cross hair down
+        cross_y += CROSS_VEL * time_needed / 5.0f;
 
         // test for wraparound
         if (cross_y > WINDOW_HEIGHT / 2)
@@ -639,7 +638,7 @@ int main(int argc, char** argv)
 			if (iCore.keyDown(SDL_SCANCODE_RIGHT))
 			{
         // move cross hair to right
-        cross_x += CROSS_VEL;
+        cross_x += CROSS_VEL * time_needed / 5.0f;
 
         // test for wraparound
         if (cross_x > WINDOW_WIDTH / 2)
@@ -648,7 +647,7 @@ int main(int argc, char** argv)
 			if (iCore.keyDown(SDL_SCANCODE_LEFT))
 			{
         // move cross hair to left
-        cross_x -= CROSS_VEL;
+        cross_x -= CROSS_VEL * time_needed / 5.0f;
 
         // test for wraparound
         if (cross_x < -WINDOW_WIDTH / 2)
@@ -700,9 +699,9 @@ int main(int argc, char** argv)
       if (++cannon_count > 20)
         cannon_state = 0;
 
-		Move_Starfield();
-		Process_Ties();
-		Process_Explosions();
+		Move_Starfield(time_needed);
+		Process_Ties(time_needed);
+		Process_Explosions(time_needed);
 
 		gCore.clear();
 		Draw_Starfield();
@@ -754,14 +753,14 @@ int main(int argc, char** argv)
 
 		//SDL_RenderDrawLine(gCore.getRenderer(), 0, 0, 200, 200);
 		SDL_RenderPresent(gCore.getRenderer());
-		//SDL_Delay(100); // artificial render time 
+		//SDL_Delay(1000); // artificial render time 
 
 		after_render_time = SDL_GetTicks();
 		time_needed = after_render_time - before_render_time;
 
 		if (time_needed < DELAY_TIME)
 		{
-			SDL_Delay(DELAY_TIME - time_needed);
+			//SDL_Delay(DELAY_TIME - time_needed);
 		}
 
 	}
