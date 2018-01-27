@@ -6,6 +6,9 @@
 /* Graphics */
 #include "../inc/common.h"
 #include "../inc/GraphicsCore.h"
+#include "../inc/Sprite.h"
+#include "../inc/BitmapFont.h"
+
 /* Input */
 #include "../inc/InputCore.h"
 
@@ -132,10 +135,15 @@ int score = 0; // take a guess :)
 
 bbq::GraphicsCore gCore; // provides framebuffer and line/point drawing functions
 
+
+
+
 int Game_Init(void *parms)
 {
 	// this function is where you do all the initialization 
 	// for your game
+
+
 
 	int index; // used for looping
 	uint16_t rgb_white = 0xFFFFFF;
@@ -574,6 +582,10 @@ int main(int argc, char** argv)
 	gCore.init();
 	// ! Init Graphics Core /////////////////////////////
 
+  bbq::SpriteSheet fontSheet(gCore.getRenderer(), "../resources/font_8x8.png");
+  bbq::Sprite fontSprite(&fontSheet, 8, 8, 0, 0, 77);
+  bbq::BitmapFont fontBmp(&fontSprite, "HITS: " + std::to_string(hits));
+
 	// Init Input Core //////////////////////////////////
 
 	bbq::InputCore iCore;
@@ -750,6 +762,9 @@ int main(int argc, char** argv)
       } // end if
 
     } // end if
+
+    fontBmp.setText("POINTS: " + std::to_string(hits));
+    fontBmp.draw(gCore.getRenderer(), 0);
 
 		//SDL_RenderDrawLine(gCore.getRenderer(), 0, 0, 200, 200);
 		SDL_RenderPresent(gCore.getRenderer());

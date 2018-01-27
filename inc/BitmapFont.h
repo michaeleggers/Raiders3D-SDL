@@ -16,7 +16,8 @@ namespace bbq
     ~BitmapFont();
   
     void update() override;
-    void draw(SDL_Renderer*, int currentFrame = 0) override;
+    void draw(SDL_Renderer* renderer, int currentFrame = 0) override;
+    void setText(std::string const & text);
 
   private:
     Sprite* sprite_;
