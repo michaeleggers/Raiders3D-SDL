@@ -22,7 +22,7 @@ namespace bbq
   private:
     SpriteSheet* spriteSheet_;
     std::string text_;
-  
+    float sineSeed = 1.0f;
   };
 
 

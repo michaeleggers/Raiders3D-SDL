@@ -1,6 +1,7 @@
 #include "../inc/BitmapFont.h"
 #include <iostream>
 #include <memory>
+#include "../inc/common.h"
 
 using namespace bbq;
 
@@ -29,31 +30,36 @@ void BitmapFont::draw(SDL_Renderer * renderer, int currentFrame)
   // dont create a new texture for each call.
   // figure out how to alpha blend with the render below.
   SDL_Texture* texture;
-  SDL_Rect srcRect = { 0, 0, spriteSheet_->width_, spriteSheet_->height_};
-  SDL_Rect destRect = { 0, 0, spriteSheet_->width_, spriteSheet_->height_};
+  SDL_Rect srcRect = { 0, 0, 8, 8};
+  SDL_Rect destRect = { 0, 0, 8 * 10, 8 * 10};
   texture = SDL_CreateTexture(renderer
     , SDL_PIXELFORMAT_RGB888
     , SDL_TEXTUREACCESS_TARGET
-    , 1920
-    , 1080);
-  SDL_SetTextureAlphaMod(texture, 0xff); 
+    , WINDOW_WIDTH
+    , WINDOW_HEIGHT);
+  SDL_SetTextureAlphaMod(texture, 0xff); // can be used to lower opacity of font 
   SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
-
   SDL_SetRenderTarget(renderer, texture);
-  SDL_RenderCopyEx(renderer
-    , spriteSheet_->texture_
-    , &srcRect
-    , &destRect
-    , 0
-    , NULL
-    , SDL_FLIP_NONE);
+  SDL_RenderClear(renderer);
+
+  //sineSeed *= 0.0008f;
   for (auto& letter : text_)
   {
-    //dest.x += spriteSheet_->width_;
+    sineSeed += 0.0002;
+    destRect.y = sin(sineSeed) * 16.0f;
+    srcRect.x = (letter - ' ') * 8;
+    SDL_RenderCopyEx(renderer
+      , spriteSheet_->texture_
+      , &srcRect
+      , &destRect
+      , 0
+      , NULL
+      , SDL_FLIP_NONE);
+
+    destRect.x += 8 * 10;
   }
+
   SDL_SetRenderTarget(renderer, NULL);
-  SDL_Rect rect = { 8, 0, 8, 8 };
-  SDL_Rect rect2 = { 0, 0, 8 * 10 , 8 * 10};
-  SDL_RenderCopy(renderer, texture, &rect, &rect2);
+  SDL_RenderCopy(renderer, texture, NULL, NULL);
   SDL_DestroyTexture(texture);
 }

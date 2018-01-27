@@ -582,7 +582,7 @@ int main(int argc, char** argv)
 	gCore.init();
 	// ! Init Graphics Core /////////////////////////////
 
-  bbq::SpriteSheet fontSheet(gCore.getRenderer(), "../resources/font_8x8.png", 0xFF);
+  bbq::SpriteSheet fontSheet(gCore.getRenderer(), "../resources/font_8x8.png", 0xff);
   bbq::Sprite fontSprite(&fontSheet, 8, 8, 0, 0, 77);
   bbq::BitmapFont fontBmp(&fontSheet, "HITS: " + std::to_string(hits));
 
@@ -773,10 +773,10 @@ int main(int argc, char** argv)
 		after_render_time = SDL_GetTicks();
 		time_needed = after_render_time - before_render_time;
 
-		if (time_needed < DELAY_TIME)
-		{
-			//SDL_Delay(DELAY_TIME - time_needed);
-		}
+		//if (time_needed < DELAY_TIME)
+		//{
+		//	SDL_Delay(DELAY_TIME - time_needed);
+		//}
 
 	}
 
