@@ -12,7 +12,7 @@ namespace bbq
   class BitmapFont : public GameObject
   {
   public:
-    BitmapFont(Sprite* sprite, std::string text);
+    BitmapFont(SpriteSheet* spriteSheet, std::string text);
     ~BitmapFont();
   
     void update() override;
@@ -20,7 +20,7 @@ namespace bbq
     void setText(std::string const & text);
 
   private:
-    Sprite* sprite_;
+    SpriteSheet* spriteSheet_;
     std::string text_;
   
   };

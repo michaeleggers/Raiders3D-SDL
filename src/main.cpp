@@ -18,8 +18,8 @@ size_t delay = 100;
 const int FPS = 60;
 const float DELAY_TIME = 1000.0f / FPS;
 
-#define NUM_STARS    512  // number of stars in sim
-#define NUM_TIES     32   // number of tie fighters in sim
+#define NUM_STARS    1024  // number of stars in sim
+#define NUM_TIES     64   // number of tie fighters in sim
 
 // 3D engine constants
 #define NEAR_Z          10   // the near clipping plane
@@ -582,9 +582,9 @@ int main(int argc, char** argv)
 	gCore.init();
 	// ! Init Graphics Core /////////////////////////////
 
-  bbq::SpriteSheet fontSheet(gCore.getRenderer(), "../resources/font_8x8.png");
+  bbq::SpriteSheet fontSheet(gCore.getRenderer(), "../resources/font_8x8.png", 0xFF);
   bbq::Sprite fontSprite(&fontSheet, 8, 8, 0, 0, 77);
-  bbq::BitmapFont fontBmp(&fontSprite, "HITS: " + std::to_string(hits));
+  bbq::BitmapFont fontBmp(&fontSheet, "HITS: " + std::to_string(hits));
 
 	// Init Input Core //////////////////////////////////
 

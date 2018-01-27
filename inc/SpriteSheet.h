@@ -16,6 +16,7 @@ namespace bbq
 	public:
 
 		friend class Sprite;
+    friend class BitmapFont;
 
 		SpriteSheet(SDL_Renderer* renderer, const char* file, Uint32 key = 0x0);
 		~SpriteSheet();
