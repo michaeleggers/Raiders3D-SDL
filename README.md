@@ -20,7 +20,7 @@ legacy DirectX libraries to link. I just learnt about this project: https://gith
 1. via cmd go into the repo and type: `mkdir build && cd build`
 2. `cmake -G "Visual Studio 15 2017 Win64" ..` (For other Visual Studio versions check the cmake documentation, please)
 3. the generated solution should be in the build folder you just created.
-4. Copy the DLLs from SDL_Image and SDL2 to the Release/Debug/RelWithDebInfo folders in the build folder. (They will be there after you have built the project for these target once in VS).
+4. Copy the DLLs from SDL_Image and SDL2 (both in the ThirdParty folder) to the Release/Debug/RelWithDebInfo folders in the build folder. (They will be there after you have built the project for these target once in VS).
 
 ## TODOs
 * Add cmake command so that DLLs get copied automatically
