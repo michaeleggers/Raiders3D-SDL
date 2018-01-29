@@ -27,5 +27,5 @@ legacy DirectX libraries to link. I just learnt about this project: https://gith
 * Add sound (maybe via SDL_mixer)
 
 ## Questions / Criticism / Thoughts
-Please feel free to contact me if you have questions about the code or how to build it. Also, I would like to hear from you if you hate the port. I'll try my best to improve the code. The SDL "backend" was written some time ago and I thought it was cool to have virtual functions... just because I can. However, the code is functional and the purpose was to get it running on newer platforms.
+Please feel free to contact me if you have questions about the code or how to build it. Also, if you have any suggestions on how to improve the SDL part I coded, just tell me or contribute. The SDL "backend" was written some time ago and I thought it was cool to have virtual functions... just because I can. However, the code is functional and the purpose was to get it running on newer platforms.
 
