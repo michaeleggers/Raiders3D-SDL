@@ -9,20 +9,21 @@
 
 namespace bbq
 {
-  class BitmapFont : public GameObject
+  class BitmapFont
   {
   public:
     BitmapFont(SpriteSheet* spriteSheet, std::string text);
     ~BitmapFont();
   
-    void update() override;
-    void draw(SDL_Renderer* renderer, int currentFrame = 0) override;
+    void draw(SDL_Renderer* renderer, int xPos, int yPos, float dt);
     void setText(std::string const & text);
+    int getWidth();
 
   private:
     SpriteSheet* spriteSheet_;
+    SDL_Texture * fontTexture_;
     std::string text_;
-    float sineSeed = 1.0f;
+    float sineSeed_ = .0f;
   };
 
 

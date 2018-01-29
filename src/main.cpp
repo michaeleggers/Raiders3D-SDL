@@ -14,23 +14,27 @@
 
 using namespace std;
 
+// old stuff, not needed atm
 size_t delay = 100;
 const int FPS = 60;
 const float DELAY_TIME = 1000.0f / FPS;
 
-#define NUM_STARS    1024  // number of stars in sim
-#define NUM_TIES     64   // number of tie fighters in sim
+#define NUM_STARS    1024     // number of stars in sim
+#define NUM_TIES     32       // number of tie fighters in sim
 
 // 3D engine constants
-#define NEAR_Z          10   // the near clipping plane
-#define FAR_Z           2000 // the far clipping plane    
-#define VIEW_DISTANCE   320  // viewing distance from viewpoint 
+#define NEAR_Z          10    // the near clipping plane
+#define FAR_Z           2000  // the far clipping plane    
+#define VIEW_DISTANCE   320   // viewing distance from viewpoint 
 // this gives a field of view of 90 degrees
 // when projected on a window of 640 wide
+// ME: For other resolutions in common.h that is not true.
+// Feel free to play around with these values :)
+
 
 // player constants
-#define CROSS_VEL       2  // speed that the cross hair moves
-//#define PLAYER_Z_VEL    8  // virtual z velocity that player is moving
+#define CROSS_VEL       2     // speed that the cross hair moves
+//#define PLAYER_Z_VEL    8   // virtual z velocity that player is moving
 // to simulate motion without moving
 
 // tie fighter model constants
@@ -51,23 +55,23 @@ const float DELAY_TIME = 1000.0f / FPS;
 // this a 3D point
 typedef struct POINT3D_TYP
 {
-	uint32_t color;     // color of point 16-bit
-	float x, y, z;      // coordinates of point in 3D
+	uint32_t color;   // color of point 16-bit
+	float x, y, z;    // coordinates of point in 3D
 } POINT3D, *POINT3D_PTR;
 
 // this is a 3D line, nothing more than two indices into a vertex list
 typedef struct LINE3D_TYP
 {
-	uint32_t color;  // color of line 16-bit
-	int v1, v2;     // indices to endpoints of line in vertex list
+	uint32_t color;   // color of line 16-bit
+	int v1, v2;       // indices to endpoints of line in vertex list
 
 } LINE3D, *LINE3D_PTR;
 
 // a tie fighter
 typedef struct TIE_TYP
 {
-	int state;      // state of the tie, 0=dead, 1=alive
-	float x, y, z;  // position of the tie
+	int state;        // state of the tie, 0=dead, 1=alive
+	float x, y, z;    // position of the tie
 	float xv, yv, zv; // velocity of the tie
 } TIE, *TIE_PTR;
 
@@ -80,12 +84,12 @@ typedef struct VEC3D_TYP
 // a wireframe explosion
 typedef struct EXPL_TYP
 {
-	int state;       // state of explosion
-	int counter;     // counter for explosion 
+	int state;         // state of explosion
+	int counter;       // counter for explosion 
 	uint32_t color;    // color of explosion
 
-					 // an explosion is a collection of edges/lines
-					 // based on the 3D model of the tie that is exploding
+	// an explosion is a collection of edges/lines
+	// based on the 3D model of the tie that is exploding
 	POINT3D p1[NUM_TIE_EDGES];  // start point of edge n
 	POINT3D p2[NUM_TIE_EDGES];  // end point of edge n
 
@@ -132,6 +136,10 @@ EXPL explosions[NUM_EXPLOSIONS]; // the explosiions
 int misses = 0; // tracks number of missed ships
 int hits = 0; // tracks number of hits
 int score = 0; // take a guess :)
+
+/* TODO: Music and sound stuff */
+
+int game_state = GAME_RUNNING; // state of game
 
 bbq::GraphicsCore gCore; // provides framebuffer and line/point drawing functions
 
@@ -228,7 +236,7 @@ void Start_Explosion(int tie)
 			explosions[index].state = 1; // enable state of explosion
 			explosions[index].counter = 0; // reset counter for explosion 
 
-										   // set color of explosion
+			// set color of explosion
 			explosions[index].color = 0x00FF0000; // green
 
 			// make copy of of edge list, so we can blow it up
@@ -310,7 +318,7 @@ void Draw_Explosions(void)
 		{
 			POINT3D p1_per, p2_per; // used to hold perspective endpoints
 
-									// test if edge if beyond near clipping plane
+			// test if edge if beyond near clipping plane
 			if (explosions[index].p1[edge].z < NEAR_Z &&
 				explosions[index].p2[edge].z < NEAR_Z)
 				continue;
@@ -330,8 +338,6 @@ void Draw_Explosions(void)
 			// step 3: draw the edge
 			gCore.drawLine(p1_screen_x, p1_screen_y, p2_screen_x, p2_screen_y,
 				explosions[index].color);
-			//Draw_Clip_Line16(p1_screen_x, p1_screen_y, p2_screen_x, p2_screen_y,
-			//	explosions[index].color, back_buffer, back_lpitch);
 
 		} // end for edge
 
@@ -365,7 +371,7 @@ void Process_Ties(float dt)
 	// process the tie fighters and do AI (what there is of it!)
 	int index; // looping var
 
-			   // move each tie fighter toward the viewpoint
+	// move each tie fighter toward the viewpoint
 	for (index = 0; index < NUM_TIES; index++)
 	{
 		// is this one dead?
@@ -384,7 +390,7 @@ void Process_Ties(float dt)
 			Init_Tie(index);
 
 			// another got away
-			//misses++;
+			misses++;
 
 		} // reset tie
 
@@ -399,8 +405,8 @@ void Draw_Ties(void)
 
 	int index; // looping var
 
-			   // used to compute the bounding box of tie fighter
-			   // for collision detection
+	// used to compute the bounding box of tie fighter
+	// for collision detection
 	int bmin_x, bmin_y, bmax_x, bmax_y;
 
 	// draw each tie fighter
@@ -432,9 +438,9 @@ void Draw_Ties(void)
 		{
 			POINT3D p1_per, p2_per; // used to hold perspective endpoints
 
-									// step 1: perspective transform each end point
-									// note the translation of each point to the position of the tie fighter
-									// that is the model is relative to the position of each tie fighter -- IMPORTANT
+		  // step 1: perspective transform each end point
+			// note the translation of each point to the position of the tie fighter
+			// that is the model is relative to the position of each tie fighter -- IMPORTANT
 			p1_per.x =
 				VIEW_DISTANCE * (ties[index].x + tie_vlist[tie_shape[edge].v1].x) /
 				(tie_vlist[tie_shape[edge].v1].z + ties[index].z);
@@ -472,7 +478,7 @@ void Draw_Ties(void)
 
 		} // end for edge
 
-		  // test if this guy has been hit by lasers???
+		// test if this guy has been hit by lasers???
 		if (cannon_state == 1)
 		{
 			// simple test of screen coords of bounding box contain laser target
@@ -509,8 +515,8 @@ void Move_Starfield(float dt)
 
 	int index; // looping var
 
-			   // the stars are technically stationary,but we are going
-			   // to move them to simulate motion of the viewpoint
+  // the stars are technically stationary,but we are going
+  // to move them to simulate motion of the viewpoint      
 	for (index = 0; index < NUM_STARS; index++)
 	{
 		// move the next star
@@ -554,13 +560,8 @@ void Draw_Starfield(void)
 		{
 			// else render to buffer
       uint32_t luminosity = rand() * 0x01010100;
-      uint32_t rgb_star_color = 0xFFFFFF00; /*(255 - 255 * (stars[index].z / (FAR_Z)));
-      rgb_star_color <<= 8;
-      rgb_star_color |= rgb_star_color << 8;
-      rgb_star_color |= rgb_star_color << 8;*/
+      uint32_t rgb_star_color = 0xFFFFFF00; 
       gCore.drawPoint(x_screen, y_screen, rgb_star_color);
-			//((USHORT *)back_buffer)[x_screen + y_screen * (back_lpitch >> 1)]
-			//	= stars[index].color;
 		} // end else
 
 	} // end for index
@@ -607,7 +608,8 @@ int main(int argc, char** argv)
 	int after_render_time = 0.0f;
 	float time_needed = 0;
 
-	while (running) {
+	while (running) 
+  {
 
 		before_render_time = SDL_GetTicks();
 
@@ -616,55 +618,56 @@ int main(int argc, char** argv)
 			if (event.type == SDL_QUIT) {
 				running = false;
 			}
-			if (event.type == SDL_MOUSEBUTTONDOWN)
-			{			
-				// save last position of targeter
-				//target_x_screen = cross_x;
-				//target_y_screen = cross_y;
-			}
+			//if (event.type == SDL_MOUSEBUTTONDOWN)
+			//{			
+			//	// save last position of targeter
+			//	//target_x_screen = cross_x;
+			//	//target_y_screen = cross_y;
+			//}
 		}
 
-		// input update
-		if (SDL_GetTicks() - last_update_time_input > 0) // not quite what the threshold should be
-		{
-			iCore.update();
 
-			if (iCore.keyDown(SDL_SCANCODE_DOWN))
-			{
+    // input update
+    iCore.update();
+    if (game_state == GAME_RUNNING)
+    {
+
+      if (iCore.keyDown(SDL_SCANCODE_DOWN))
+      {
         // move cross hair up
         cross_y -= CROSS_VEL * time_needed / 5.0f;
 
         // test for wraparound
         if (cross_y < -WINDOW_HEIGHT / 2)
           cross_y = WINDOW_HEIGHT / 2;
-			}
-			if (iCore.keyDown(SDL_SCANCODE_UP))
-			{
+      }
+      if (iCore.keyDown(SDL_SCANCODE_UP))
+      {
         // move cross hair down
         cross_y += CROSS_VEL * time_needed / 5.0f;
 
         // test for wraparound
         if (cross_y > WINDOW_HEIGHT / 2)
           cross_y = -WINDOW_HEIGHT / 2;
-			}
-			if (iCore.keyDown(SDL_SCANCODE_RIGHT))
-			{
+      }
+      if (iCore.keyDown(SDL_SCANCODE_RIGHT))
+      {
         // move cross hair to right
         cross_x += CROSS_VEL * time_needed / 5.0f;
 
         // test for wraparound
         if (cross_x > WINDOW_WIDTH / 2)
           cross_x = -WINDOW_WIDTH / 2;
-			}
-			if (iCore.keyDown(SDL_SCANCODE_LEFT))
-			{
+      }
+      if (iCore.keyDown(SDL_SCANCODE_LEFT))
+      {
         // move cross hair to left
         cross_x -= CROSS_VEL * time_needed / 5.0f;
 
         // test for wraparound
         if (cross_x < -WINDOW_WIDTH / 2)
           cross_x = WINDOW_WIDTH / 2;
-			}
+      }
 
       // speed of ship controls
       if (iCore.keyDown(SDL_SCANCODE_A))
@@ -680,8 +683,8 @@ int main(int argc, char** argv)
       }
 
       // test if player is firing laser cannon
-			if (iCore.keyDown(SDL_SCANCODE_SPACE) && cannon_state == 0)
-			{
+      if (iCore.keyDown(SDL_SCANCODE_SPACE) && cannon_state == 0)
+      {
         // fire the cannon
         cannon_state = 1;
         cannon_count = 0;
@@ -689,18 +692,19 @@ int main(int argc, char** argv)
         // save last position of targeter
         target_x_screen = cross_x_screen;
         target_y_screen = cross_y_screen;
-			}
+      }
 
-			if (iCore.keyDown(SDL_SCANCODE_ESCAPE))
-			{
-				running = false;
-			}
 
-			last_update_time_input = SDL_GetTicks();
-		}
+      last_update_time_input = SDL_GetTicks();
+
+    } // end if game running
+    if (iCore.keyDown(SDL_SCANCODE_ESCAPE))
+    {
+      running = false;
+    }
+
 
     // process cannon, simple FSM ready->firing->cool
-
     // firing phase
     if (cannon_state == 1)
       if (++cannon_count > 15)
@@ -711,7 +715,7 @@ int main(int argc, char** argv)
       if (++cannon_count > 20)
         cannon_state = 0;
 
-		Move_Starfield(time_needed);
+    Move_Starfield(time_needed);
 		Process_Ties(time_needed);
 		Process_Explosions(time_needed);
 
@@ -719,7 +723,6 @@ int main(int argc, char** argv)
 		Draw_Starfield();
 		Draw_Ties();
 		Draw_Explosions();
-
 
 		// first compute screen coords of crosshair
 		// note inversion of y-axis
@@ -763,12 +766,24 @@ int main(int argc, char** argv)
 
     } // end if
 
-    fontBmp.setText("POINTS: " + std::to_string(hits));
-    fontBmp.draw(gCore.getRenderer(), 0);
+    // draw information
+    fontBmp.setText("KILLS: " + std::to_string(hits) 
+              + "    ESCAPED: " + std::to_string(misses));
+    fontBmp.draw(gCore.getRenderer(), 0, 0, time_needed);
+
+    if (game_state == GAME_OVER)
+    {
+      fontBmp.setText("G A M E  O V E R");
+      fontBmp.draw(gCore.getRenderer(), WINDOW_WIDTH / 2 - 8 * 5 * 10, WINDOW_HEIGHT / 2, time_needed);
+    }
 
 		//SDL_RenderDrawLine(gCore.getRenderer(), 0, 0, 200, 200);
 		SDL_RenderPresent(gCore.getRenderer());
 		//SDL_Delay(1000); // artificial render time 
+
+    // check for game state switch
+    if (misses > 4 * NUM_TIES)
+      game_state = GAME_OVER;
 
 		after_render_time = SDL_GetTicks();
 		time_needed = after_render_time - before_render_time;

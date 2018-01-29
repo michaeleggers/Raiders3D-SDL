@@ -36,7 +36,6 @@ add_executable(Barbecue
 	src/SpriteSheet.cpp
 	src/GameState.cpp
 	src/GameObject.cpp
-	src/Player.cpp
 	src/BitmapFont.cpp
 	src/TileMap.cpp
 	inc/GraphicsCore.h
@@ -45,7 +44,6 @@ add_executable(Barbecue
 	inc/SpriteSheet.h
 	inc/GameState.h
 	inc/GameObject.h
-	inc/Player.h
 	inc/BitmapFont.h
 	inc/TileMap.h
 	inc/common.h
