@@ -13,7 +13,7 @@ legacy DirectX libraries to link. I just learnt about this project: https://gith
 ## A few changes to the original were made
 * The lasers beams fired by the player are red instead of blue, because Rebels... you know...
 * The trajectory of the pieces of a Tie fighter contain their velocity when they explode.
-* The draw functions get called with a delta time, that is the time being past since the last render. One could also limit the framerate  so the CPU and GPU don't go crazy. Do it if you feel more comfortable that way.
+* The update functions get called with a delta time, that is the time being past since the last render. One could also limit the framerate  so the CPU and GPU don't go crazy. Do it if you feel more comfortable that way.
 
 ## How to build
 * CMake is used. To generate a Visual Studio Solution follow these steps:
