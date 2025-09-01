@@ -1,32 +1,29 @@
 #pragma once
-#include <iostream>
-#include <vector>
-#include <algorithm>
-#include <iterator>
-#include <fstream>
-#include <string>
-#include <iostream>
-#include <sstream>
 #include "../inc/GameObject.h"
 #include "../inc/Sprite.h"
+#include <algorithm>
+#include <fstream>
+#include <iostream>
+#include <iterator>
+#include <sstream>
+#include <string>
+#include <vector>
 
 namespace bbq
 {
 
-  class TileMap : public GameObject
-  {
+class TileMap : public GameObject
+{
   public:
-    TileMap(std::string const & inputfile, int width, int height, Sprite* sprite);
+    TileMap(std::string const& inputfile, int width, int height, Sprite* sprite);
     ~TileMap();
 
     void update();
     void draw(SDL_Renderer*, int currentFrame = 0);
 
     std::vector<char> asciiMap_;
-    Sprite* sprite_;
-    int columns_;
-    int rows_;
-  
-  };
-}
-
+    Sprite*           sprite_;
+    int               columns_;
+    int               rows_;
+};
+} // namespace bbq

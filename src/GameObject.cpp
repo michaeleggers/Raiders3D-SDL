@@ -2,11 +2,6 @@
 
 using namespace bbq;
 
-GameObject::GameObject()
-{
-}
+GameObject::GameObject() {}
 
-
-GameObject::~GameObject()
-{
-}
+GameObject::~GameObject() {}

@@ -2,8 +2,8 @@
 
 namespace bbq
 {
-  class InputCore
-  {
+class InputCore
+{
   public:
     InputCore();
     ~InputCore();
@@ -16,9 +16,8 @@ namespace bbq
     bool keyUp(int key);
 
   private:
-    int numKeys_;
+    int   numKeys_;
     bool* keys_;
     bool* keysPrev_;
-  };
-}
-
+};
+} // namespace bbq

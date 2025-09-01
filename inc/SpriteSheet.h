@@ -7,26 +7,23 @@
 */
 #include <string>
 
-# include "SDL.h"
+#include "SDL.h"
 
 namespace bbq
 {
-	class SpriteSheet
-	{
-	public:
-
-		friend class Sprite;
+class SpriteSheet
+{
+  public:
+    friend class Sprite;
     friend class BitmapFont;
 
-		SpriteSheet(SDL_Renderer* renderer, const char* file, Uint32 key = 0x0);
-		~SpriteSheet();
+    SpriteSheet(SDL_Renderer* renderer, const char* file, Uint32 key = 0x0);
+    ~SpriteSheet();
 
-	private:
+  private:
+    SDL_Texture* texture_;
+    Uint32       width_;
+    Uint32       height_;
+};
 
-		SDL_Texture* texture_;
-		Uint32 width_;
-		Uint32 height_;
-	
-	};
-
-}
+} // namespace bbq

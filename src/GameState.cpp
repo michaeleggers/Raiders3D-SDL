@@ -2,11 +2,6 @@
 
 using namespace bbq;
 
-GameState::GameState()
-{
-}
+GameState::GameState() {}
 
-
-GameState::~GameState()
-{
-}
+GameState::~GameState() {}
