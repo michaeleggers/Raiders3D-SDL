@@ -20,7 +20,6 @@ add_executable(Raiders3D
 	src/GameState.cpp
 	src/GameObject.cpp
 	src/BitmapFont.cpp
-	src/TileMap.cpp
 	inc/GraphicsCore.h
 	inc/InputCore.h
 	inc/Sprite.h 
@@ -28,7 +27,6 @@ add_executable(Raiders3D
 	inc/GameState.h
 	inc/GameObject.h
 	inc/BitmapFont.h
-	inc/TileMap.h
 	inc/common.h
 	)
 
