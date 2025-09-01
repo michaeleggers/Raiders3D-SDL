@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.6)
 
-project(Barbecue)
+project(Raiders3D)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -11,7 +11,7 @@ set(SDL2_DISABLE_INSTALL OFF)
 add_subdirectory(./ThirdParty/SDL2-2.32.8/)
 add_subdirectory(./ThirdParty/SDL2_image-2.6.0/)
 
-add_executable(Barbecue 
+add_executable(Raiders3D 
 	src/main.cpp
 	src/GraphicsCore.cpp
 	src/InputCore.cpp
@@ -32,7 +32,7 @@ add_executable(Barbecue
 	inc/common.h
 	)
 
-target_link_libraries(Barbecue PUBLIC
+target_link_libraries(Raiders3D PUBLIC
 	SDL2::SDL2
 	SDL2_image::SDL2_image
 )
