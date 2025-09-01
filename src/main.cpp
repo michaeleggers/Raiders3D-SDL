@@ -714,24 +714,19 @@ int main(int argc, char** argv)
             if ( (rand() % 2 == 1) )
             {
                 // right beam
-                gCore.drawLine(WINDOW_WIDTH - 1,
-                               WINDOW_HEIGHT - 1,
-                               -4 + rand() % 8 + target_x_screen,
-                               -4 + rand() % 8 + target_y_screen,
-                               rand(),
-                               0x00,
-                               0x00);
+                int targetX = -4 + rand() % 8 + target_x_screen;
+                int targetY = -4 + rand() % 8 + target_y_screen;
+                gCore.drawLine(WINDOW_WIDTH - 1, WINDOW_HEIGHT - 1, targetX, targetY, rand(), 0x00, 0x00);
+                gCore.drawLine(WINDOW_WIDTH, WINDOW_HEIGHT, targetX + 1, targetY + 1, rand(), 0x00, 0x00);
             } // end if
             else
             {
                 // left beam
-                gCore.drawLine(0,
-                               WINDOW_HEIGHT - 1,
-                               -4 + rand() % 8 + target_x_screen,
-                               -4 + rand() % 8 + target_y_screen,
-                               rand(),
-                               0x00,
-                               0x00);
+                int targetX = -4 + rand() % 8 + target_x_screen;
+                int targetY = -4 + rand() % 8 + target_y_screen;
+                gCore.drawLine(0, WINDOW_HEIGHT - 1, targetX, targetY, rand(), 0x00, 0x00);
+
+                gCore.drawLine(1, WINDOW_HEIGHT, targetX + 1, targetY + 1, rand(), 0x00, 0x00);
             } // end if
 
         } // end if
