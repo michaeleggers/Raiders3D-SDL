@@ -15,15 +15,18 @@ legacy DirectX libraries to link. I just learnt about this project: https://gith
 * The trajectory of the pieces of a Tie fighter contain their velocity when they explode.
 * The update functions get called with a delta time, that is the time being past since the last render. One could also limit the framerate  so the CPU and GPU don't go crazy. Do it if you feel more comfortable that way.
 
-## How to build
-* CMake is used. To generate a Visual Studio Solution follow these steps:
-1. via cmd go into the repo and type: `mkdir build && cd build`
-2. `cmake -G "Visual Studio 15 2017 Win64" ..` (For other Visual Studio versions check the cmake documentation, please)
-3. the generated solution should be in the build folder you just created.
-4. Copy the DLLs from SDL_Image and SDL2 (both in the ThirdParty folder) to the Release/Debug/RelWithDebInfo folders in the build folder. (They will be there after you have built the project for these target once in VS).
-
+## How to build and run
+Go into repo's root dir and do:
+```bash
+mkdir build && cd build
+cmake -DSDL2IMAGE_INSTALL=OFF -DSDL2_DISABLE_INSTALL=OFF ..
+```
+On Windows, double-click the build EXE.
+On MacOS/Linux start the game by typing:
+```bash
+./Raiders3D
+```
 ## TODOs
-* Add cmake command so that DLLs get copied automatically
 * Add sound (maybe via SDL_mixer)
 
 ## Questions / Criticism / Thoughts
