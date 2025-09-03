@@ -20,6 +20,7 @@ Go into repo's root dir and do:
 ```bash
 mkdir build && cd build
 cmake -DSDL2IMAGE_INSTALL=OFF -DSDL2_DISABLE_INSTALL=OFF ..
+cmake --build .
 ```
 On Windows, double-click the build EXE.
 On MacOS/Linux start the game by typing:
