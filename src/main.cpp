@@ -119,10 +119,10 @@ POINT3D stars[ NUM_STARS ];         // the starfield
 float cross_x = 0; // cross hairs
 float cross_y = 0;
 
-float cross_x_screen  = WINDOW_WIDTH / 2, // used for cross hair
-    cross_y_screen    = WINDOW_HEIGHT / 2,
-      target_x_screen = WINDOW_WIDTH / 2, // used for targeter
-    target_y_screen   = WINDOW_HEIGHT / 2;
+float cross_x_screen  = (float)WINDOW_WIDTH / 2.0f, // used for cross hair
+    cross_y_screen    = (float)WINDOW_HEIGHT / 2.0f,
+      target_x_screen = (float)WINDOW_WIDTH / 2.0f, // used for targeter
+    target_y_screen   = (float)WINDOW_HEIGHT / 2.0f;
 
 int player_z_vel = 4; // virtual speed of viewpoint/ship
 int cannon_state = 0; // state of laser cannon
@@ -146,8 +146,8 @@ int Game_Init(void* parms)
     // for your game
 
     int      index; // used for looping
-    uint16_t rgb_white = 0xFFFFFF;
-    uint16_t rgb_green = 0x00FF00;
+    uint16_t rgb_white = (uint16_t)0xFFFFFF;
+    uint16_t rgb_green = (uint16_t)0x00FF00;
 
     // create the starfield
     for ( index = 0; index < NUM_STARS; index++ )
@@ -317,10 +317,10 @@ void Draw_Explosions(void)
             p2_per.y = VIEW_DISTANCE * explosions[ index ].p2[ edge ].y / explosions[ index ].p2[ edge ].z;
 
             // step 2: compute screen coords
-            int p1_screen_x = WINDOW_WIDTH / 2 + p1_per.x;
-            int p1_screen_y = WINDOW_HEIGHT / 2 - p1_per.y;
-            int p2_screen_x = WINDOW_WIDTH / 2 + p2_per.x;
-            int p2_screen_y = WINDOW_HEIGHT / 2 - p2_per.y;
+            int p1_screen_x = (float)WINDOW_WIDTH / 2.0f + p1_per.x;
+            int p1_screen_y = (float)WINDOW_HEIGHT / 2.0f - p1_per.y;
+            int p2_screen_x = (float)WINDOW_WIDTH / 2.0f + p2_per.x;
+            int p2_screen_y = (float)WINDOW_HEIGHT / 2.0f - p2_per.y;
 
             // step 3: draw the edge
             gCore.drawLine(p1_screen_x, p1_screen_y, p2_screen_x, p2_screen_y, explosions[ index ].color);
@@ -437,10 +437,10 @@ void Draw_Ties(void)
                        / (tie_vlist[ tie_shape[ edge ].v2 ].z + ties[ index ].z);
 
             // step 2: compute screen coords
-            int p1_screen_x = WINDOW_WIDTH / 2 + p1_per.x;
-            int p1_screen_y = WINDOW_HEIGHT / 2 - p1_per.y;
-            int p2_screen_x = WINDOW_WIDTH / 2 + p2_per.x;
-            int p2_screen_y = WINDOW_HEIGHT / 2 - p2_per.y;
+            int p1_screen_x = (float)WINDOW_WIDTH / 2.0f + p1_per.x;
+            int p1_screen_y = (float)WINDOW_HEIGHT / 2.0f - p1_per.y;
+            int p2_screen_x = (float)WINDOW_WIDTH / 2.0f + p2_per.x;
+            int p2_screen_y = (float)WINDOW_HEIGHT / 2.0f - p2_per.y;
 
             // step 3: draw the edge
             gCore.drawLine(p1_screen_x, p1_screen_y, p2_screen_x, p2_screen_y, rgb_tie_color);
@@ -527,8 +527,8 @@ void Draw_Starfield(void)
         float y_per = VIEW_DISTANCE * stars[ index ].y / stars[ index ].z;
 
         // step 2: compute screen coords
-        int x_screen = WINDOW_WIDTH / 2 + x_per;
-        int y_screen = WINDOW_HEIGHT / 2 - y_per;
+        int x_screen = (float)WINDOW_WIDTH / 2.0f + x_per;
+        int y_screen = (float)WINDOW_HEIGHT / 2.0f - y_per;
 
         // clip to screen coords
         if ( x_screen >= WINDOW_WIDTH || x_screen < 0 || y_screen >= WINDOW_HEIGHT || y_screen < 0 )
@@ -579,12 +579,11 @@ int main(int argc, char** argv)
     size_t    iter    = 0;
     SDL_Event event;
 
-    int   before_update_time     = 0;
-    int   last_update_time       = SDL_GetTicks();
-    float last_update_time_input = SDL_GetTicks();
-    int   before_render_time     = SDL_GetTicks();
-    int   after_render_time      = 0.0f;
-    float time_needed            = 0;
+    int   before_update_time = 0;
+    int   last_update_time   = SDL_GetTicks();
+    int   before_render_time = SDL_GetTicks();
+    int   after_render_time  = 0.0f;
+    float time_needed        = 0;
 
     while ( running )
     {
@@ -607,16 +606,17 @@ int main(int argc, char** argv)
 
         // input update
         iCore.update();
+        float fWindowWidth  = (float)WINDOW_WIDTH;
+        float fWindowHeight = (float)WINDOW_HEIGHT;
         if ( game_state == GAME_RUNNING )
         {
-
             if ( iCore.keyDown(SDL_SCANCODE_DOWN) )
             {
                 // move cross hair up
                 cross_y -= CROSS_VEL * time_needed / 5.0f;
 
                 // test for wraparound
-                if ( cross_y < -WINDOW_HEIGHT / 2 ) cross_y = WINDOW_HEIGHT / 2;
+                if ( cross_y < -fWindowHeight / 2.0f ) cross_y = fWindowHeight / 2.0f;
             }
             if ( iCore.keyDown(SDL_SCANCODE_UP) )
             {
@@ -624,7 +624,7 @@ int main(int argc, char** argv)
                 cross_y += CROSS_VEL * time_needed / 5.0f;
 
                 // test for wraparound
-                if ( cross_y > WINDOW_HEIGHT / 2 ) cross_y = -WINDOW_HEIGHT / 2;
+                if ( cross_y > fWindowHeight / 2.0f ) cross_y = -fWindowHeight / 2.0f;
             }
             if ( iCore.keyDown(SDL_SCANCODE_RIGHT) )
             {
@@ -632,7 +632,7 @@ int main(int argc, char** argv)
                 cross_x += CROSS_VEL * time_needed / 5.0f;
 
                 // test for wraparound
-                if ( cross_x > WINDOW_WIDTH / 2 ) cross_x = -WINDOW_WIDTH / 2;
+                if ( cross_x > fWindowWidth / 2.0f ) cross_x = -fWindowWidth / 2.0f;
             }
             if ( iCore.keyDown(SDL_SCANCODE_LEFT) )
             {
@@ -640,7 +640,7 @@ int main(int argc, char** argv)
                 cross_x -= CROSS_VEL * time_needed / 5.0f;
 
                 // test for wraparound
-                if ( cross_x < -WINDOW_WIDTH / 2 ) cross_x = WINDOW_WIDTH / 2;
+                if ( cross_x < -fWindowWidth / 2.0f ) cross_x = fWindowWidth / 2.0f;
             }
 
             // speed of ship controls
@@ -668,8 +668,6 @@ int main(int argc, char** argv)
                 target_y_screen = cross_y_screen;
             }
 
-            last_update_time_input = SDL_GetTicks();
-
         } // end if game running
         if ( iCore.keyDown(SDL_SCANCODE_ESCAPE) )
         {
@@ -696,18 +694,18 @@ int main(int argc, char** argv)
 
         // first compute screen coords of crosshair
         // note inversion of y-axis
-        cross_x_screen = WINDOW_WIDTH / 2 + cross_x;
-        cross_y_screen = WINDOW_HEIGHT / 2 - cross_y;
+        cross_x_screen = fWindowWidth / 2.0f + cross_x;
+        cross_y_screen = fWindowHeight / 2.0f - cross_y;
 
+#if 1
         // draw the crosshair in screen coords
         gCore.drawLine(cross_x_screen - 16, cross_y_screen, cross_x_screen + 16, cross_y_screen, 0xFF000000);
-
         gCore.drawLine(cross_x_screen, cross_y_screen - 16, cross_x_screen, cross_y_screen + 16, 0xFF000000);
-
         gCore.drawLine(cross_x_screen - 16, cross_y_screen - 4, cross_x_screen - 16, cross_y_screen + 4, 0xFF000000);
-
         gCore.drawLine(cross_x_screen + 16, cross_y_screen - 4, cross_x_screen + 16, cross_y_screen + 4, 0xFF000000);
+#endif
 
+#if 1
         // draw the laser beams
         if ( cannon_state == 1 )
         {
@@ -730,6 +728,7 @@ int main(int argc, char** argv)
             } // end if
 
         } // end if
+#endif
 
         // draw information
         fontBmp.setText("KILLS: " + std::to_string(hits) + "    ESCAPED: " + std::to_string(misses));

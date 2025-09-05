@@ -39,7 +39,7 @@ void BitmapFont::draw(SDL_Renderer* renderer, int xPos, int yPos, float dt)
     if ( !fontTexture_ )
     {
         fontTexture_ = SDL_CreateTexture(
-            renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_TARGET, WINDOW_WIDTH, WINDOW_HEIGHT);
+            renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, WINDOW_WIDTH, WINDOW_HEIGHT);
     }
     SDL_SetTextureAlphaMod(fontTexture_, 0xff); // can be used to lower opacity of font
     SDL_SetTextureBlendMode(fontTexture_, SDL_BLENDMODE_BLEND);

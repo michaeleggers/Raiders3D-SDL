@@ -34,3 +34,14 @@ target_link_libraries(Raiders3D PUBLIC
 	SDL2::SDL2
 	SDL2_image::SDL2_image
 )
+
+target_compile_options(Raiders3D PRIVATE -Wall -Wextra -Wpedantic -Werror)
+target_compile_options(Raiders3D PRIVATE -Wno-unused-variable)
+target_compile_options(Raiders3D PRIVATE -Wno-unused-parameter)
+target_compile_options(Raiders3D PRIVATE -Wno-extra-semi)
+target_compile_options(Raiders3D PRIVATE -Wno-newline-eof)
+target_compile_options(Raiders3D PRIVATE -fms-extensions)
+target_compile_options(Raiders3D PRIVATE -Wno-nested-anon-types)
+target_compile_options(Raiders3D PRIVATE -Wno-gnu-anonymous-struct)
+target_compile_options(Raiders3D PRIVATE -Wno-gnu-zero-variadic-macro-arguments)
+

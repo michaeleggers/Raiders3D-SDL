@@ -18,7 +18,7 @@ GraphicsCore::~GraphicsCore()
 int GraphicsCore::init()
 {
     int errorCode = 0;
-    if ( errorCode = (SDL_Init(SDL_INIT_EVERYTHING) < 0) )
+    if ( (errorCode = (SDL_Init(SDL_INIT_EVERYTHING) < 0)) != 0 )
     {
         std::cout << "couldn't init SDL2. ERROR: " << SDL_GetError() << std::endl;
     }
